@@ -1,8 +1,6 @@
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Scanner;
+import java.util.Stack;
 
 public class  Graphe{
   LinkedList<Noeud> noeuds ;
@@ -99,6 +97,7 @@ public Graphe(int k){
         
         }
 }
+@Override
 public String toString(){
     String s = "Graphe : \n" ;
     if(this.noeuds.size() == 0){
@@ -137,7 +136,8 @@ public String toString(){
      }
         for(Noeud n : this.noeuds){
             if(!n.mark){
-                profR(n) ;
+                // profR(n) ;
+                profI(n)  ; 
             }
         }
   }
@@ -154,6 +154,48 @@ public String toString(){
             }
         }
     }
+
+
+
+
+
+
+
+
+// iterative DFS parcours en profondeur    == debth itératif   we use a stack (LIFO ) for successors
+public void profI(Noeud n) {
+    Stack<Noeud> stack = new Stack<>();
+    n.mark = true;                 // mark the starting node
+    stack.push(n);
+    System.out.println(n.toStringOnlyId());
+
+    while (!stack.empty()) {
+        Noeud current = stack.peek(); // use top of stack
+
+        boolean allMarked = true;    // check if all successors are visited
+
+        for (Arc a : current.succ) {
+            if (!a.cible.mark) {
+                a.cible.mark = true;              // mark before pushing 
+                stack.push(a.cible);              // push unvisited neighbor
+                System.out.println(a.cible.toStringOnlyId());
+                allMarked = false;                 // found unvisited neighbor
+                break;                             // only push one at a time
+            }
+        }
+
+        if (allMarked) {
+            stack.pop();
+        }
+    }
+}
+
+
+
+
+
+
+
   }
 
 

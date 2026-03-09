@@ -8,8 +8,9 @@ public class Noeud {
         this.succ = new LinkedList<Arc>();  
         this.mark = false;
     } 
+     @Override
      public String toString(){
-        String s  ="Noeud "+ this.id;
+        String s  =""+ this.id;
         for(Arc a : this.succ){
             s += " -> " + a.cible.getId() ;
         }
@@ -19,7 +20,7 @@ public class Noeud {
 
 
        public String toStringOnlyId(){
-        String s  ="Noeud "+ this.id;
+        String s  =""+ this.id;
         return s ;
      }
 
