@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Stack;
@@ -92,7 +94,7 @@ public Graphe(int k){
                return ;
         }
         if(source != null && cible != null && !source.hasSuccesseur(y)){
-            Arc a = new Arc(source, cible) ;
+            Arc a = new Arc(source, cible ) ;
             source.succ.add(a) ;
         
         }
@@ -158,7 +160,7 @@ public String toString(){
 
 
 
-
+   
 
 
 
@@ -191,7 +193,59 @@ public void profI(Noeud n) {
 }
 
 
+   
 
+
+
+
+
+
+private boolean hasCycle(Noeud start, Noeud parent) {
+    start.mark = true;
+    for(Arc a : start.succ) {
+        Noeud next = a.cible;
+        if(!next.mark) {
+            if(hasCycle(next, start)) return true;
+        } else if(next != parent) {
+            // voisin déjà visité et pas le parent → cycle
+            return true;
+        }
+    }
+    return false;
+}
+
+
+
+
+
+
+
+public void kruskal() {
+
+    for(Noeud n : this.noeuds) n.mark = false;
+
+    LinkedList<Arc> arcs = new LinkedList<>();
+    for(Noeud n : this.noeuds) {
+        arcs.addAll(n.succ);
+        n.succ.clear(); 
+    }
+
+
+    arcs.sort(Comparator.comparingInt(a -> a.Weight));
+    LinkedList<Arc> mst = new LinkedList<>();
+    for(Arc a : arcs) {
+        for(Noeud n : this.noeuds) n.mark = false;
+        a.source.succ.add(a);   // juste pour tester le cycle
+        if(hasCycle(a.source, null)) {
+            a.source.succ.remove(a);
+        } else {
+            mst.add(a);
+            System.out.println("Ajouter à l’arbre : " + a);
+        }
+// n-1 arc
+        if(mst.size() == this.noeuds.size() - 1) break;
+    }
+}
 
 
 
