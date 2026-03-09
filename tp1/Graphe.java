@@ -58,6 +58,11 @@ public Graphe(int k){
     public Noeud getNoeud(int n){
         // with O(1) complexity   (key , value)   
         // cause get  work 
+        // hash(8 , node) --> java put the value hash(8) %8  --> 0  and put the node in the table in the index 0
+        // get(8) --> java calculate hash(8)    and put it in the table  and return the node in the index 0
+        // 1 calcule , 1 access 
+        //   java calculate hash (8 )  and put it in the table  
+        // after if
       Noeud el =  hmap.get(n) ;
       if(el == null){
                 System.out.println("L'element n'esist pas ");
