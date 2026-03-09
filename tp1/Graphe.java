@@ -62,7 +62,13 @@ public Graphe(int k){
         // get(8) --> java calculate hash(8)    and put it in the table  and return the node in the index 0
         // 1 calcule , 1 access 
         //   java calculate hash (8 )  and put it in the table  
-        // after if
+
+        //       Noeud el =  hmap.get(n) ;
+
+// Si deux clés donnent le même index : 
+// hash(5) % 8 = 3
+// hash(13) % 8 = 3
+// On obtient :3 → (5,node) → (13,node)  Donc Java doit parcourir cette petite liste.
       Noeud el =  hmap.get(n) ;
       if(el == null){
                 System.out.println("L'element n'esist pas ");
