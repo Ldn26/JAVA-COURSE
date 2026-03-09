@@ -3,7 +3,6 @@ public class Noeud {
     int id;
     LinkedList<Arc> succ ;   
             boolean mark = false;
-
     public Noeud(int id){
         this.id = id;
         this.succ = new LinkedList<Arc>();  
@@ -21,7 +20,6 @@ public class Noeud {
 
        public String toStringOnlyId(){
         String s  ="Noeud "+ this.id;
-
         return s ;
      }
 

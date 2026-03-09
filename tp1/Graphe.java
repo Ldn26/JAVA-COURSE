@@ -31,9 +31,8 @@ public Graphe(int k){
     this.noeuds = new LinkedList<Noeud>();
     this.hmap = new HashMap<Integer, Noeud>();
 
-    for(int i = 0; i < k; i++){
+    for(int i = 1; i <= k; i++){
         Noeud node = new Noeud(i);
-
         this.noeuds.add(node);
         this.hmap.put(i, node);
     }
@@ -69,21 +68,21 @@ public Graphe(int k){
 // hash(5) % 8 = 3
 // hash(13) % 8 = 3
 // On obtient :3 → (5,node) → (13,node)  Donc Java doit parcourir cette petite liste.
-      Noeud el =  hmap.get(n) ;
-      if(el == null){
-                System.out.println("L'element n'esist pas ");
-                return null ;
+    //   Noeud el =  hmap.get(n) ;
+    //   if(el == null){
+    //             System.out.println("L'element n'esist pas ");
+    //             return null ;
 
-      }
-      return el  ; 
+    //   }
+    //   return el  ; 
   
     //   With O(n) complexity
-        // for(Noeud node : this.noeuds){
-        //     if(node.getId() == n){
-        //         return node ;
-        //     }
-        // }
-        // return null ;
+        for(Noeud node : this.noeuds){
+            if(node.getId() == n){
+                return node ;
+            }
+        }
+        return null ;
         
     }
 
@@ -132,16 +131,30 @@ public String toString(){
 
 //     }
   
+    public void parcours(){
+     for(Noeud n : this.noeuds){
+        n.mark = false ;
+     }
+        for(Noeud n : this.noeuds){
+            if(!n.mark){
+                profR(n) ;
+            }
+        }
+  }
 
-//     public void parcours(){
-//     this.mark = true ;
-//     System.out.println("the id   "+ this.id);
-//     for(Arc a : this.succ){
-//         if(!a.cible.mark){
-//             a.cible.parcours();
-//         }
-//     }
-//   }
+// DFS parcours en profondeur    == debth récursif   we use a stack (LIFO ) for successors   
+// complexity in time : O(n + m)  n : number of nodes  m : number of arcs 
+
+    public void profR(Noeud n){
+     n.mark = true ;
+     System.out.println(n.toString());
+        for(Arc a : n.succ){
+            if(!a.cible.mark){
+                profR(a.cible) ;
+            }
+        }
+    }
+  }
 
 
 
@@ -152,8 +165,6 @@ public String toString(){
 
 
 
-
-}
 
 
 // le pire des cas  c'est l'element c'est le dernier 
