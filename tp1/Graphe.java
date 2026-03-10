@@ -167,22 +167,22 @@ public String toString(){
 // iterative DFS parcours en profondeur    == debth itératif   we use a stack (LIFO ) for successors
 public void profI(Noeud n) {
     Stack<Noeud> stack = new Stack<>();
-    n.mark = true;                 // mark the starting node
+    n.mark = true;               
     stack.push(n);
     System.out.println(n.toStringOnlyId());
 
     while (!stack.empty()) {
-        Noeud current = stack.peek(); // use top of stack
+        Noeud current = stack.peek(); 
 
-        boolean allMarked = true;    // check if all successors are visited
+        boolean allMarked = true;   
 
         for (Arc a : current.succ) {
             if (!a.cible.mark) {
-                a.cible.mark = true;              // mark before pushing 
-                stack.push(a.cible);              // push unvisited neighbor
+                a.cible.mark = true;              
+                stack.push(a.cible);             
                 System.out.println(a.cible.toStringOnlyId());
-                allMarked = false;                 // found unvisited neighbor
-                break;                             // only push one at a time
+                allMarked = false;                
+                break;                           
             }
         }
 
@@ -207,7 +207,6 @@ private boolean hasCycle(Noeud start, Noeud parent) {
         if(!next.mark) {
             if(hasCycle(next, start)) return true;
         } else if(next != parent) {
-            // voisin déjà visité et pas le parent → cycle
             return true;
         }
     }
