@@ -241,15 +241,19 @@ public void positionner() {
 }
 
 
-// Cette méthode devra connecter chaque nœud
-// de votre graphe à ses k plus proches voisins, par des arcs non orientés et valués par la
-// distance entre les paires de nœuds.
 
-public void partiel(int k){
-
-
-    
-}
+public void partiel(int k) {
+    for(Noeud n : this.noeuds) {
+        ArrayList<Noeud> neighbors = new ArrayList<>(this.noeuds);
+        neighbors.remove(n);
+        neighbors.sort(Comparator.comparingInt(neighbor -> (int)Math.sqrt(Math.pow(n.abs - neighbor.abs, 2) + Math.pow(n.ord - neighbor.ord, 2))));
+        for(int i = 0; i < Math.min(k, neighbors.size()); i++) {
+            Noeud neighbor = neighbors.get(i);
+            int weight = (int)Math.sqrt(Math.pow(n.abs - neighbor.abs, 2) + Math.pow(n.ord - neighbor.ord, 2));
+            this.addArc(n.id, weight, neighbor.id);
+            this.addArc(neighbor.id, weight, n.id); 
+        }
+    }  }
 
 
  
