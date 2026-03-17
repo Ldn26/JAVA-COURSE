@@ -1,6 +1,8 @@
 import java.util.LinkedList;
 public class Noeud {
     int id;
+    int abs    ;
+    int ord ; 
     LinkedList<Arc> succ ;   
             boolean mark = false;
     public Noeud(int id){
@@ -8,6 +10,24 @@ public class Noeud {
         this.succ = new LinkedList<Arc>();  
         this.mark = false;
     } 
+
+
+
+
+
+
+    public Noeud(int id  , int abs , int ord){
+        this.id = id;
+        this.abs = abs;
+        this.ord = ord;
+        this.succ = new LinkedList<Arc>();  
+        this.mark = false;
+    } 
+
+
+
+
+
      @Override
      public String toString(){
         String s  =""+ this.id;

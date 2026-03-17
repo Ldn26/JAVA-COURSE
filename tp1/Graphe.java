@@ -89,12 +89,26 @@ public Graphe(int k){
     public void addArc(int x, int y){
         Noeud source = this.getNoeud(x) ;
         Noeud cible = this.getNoeud(y) ;
+
         if(source.hasSuccesseur(y)){
                System.out.println("L'arc existe deja  ");
                return ;
         }
         if(source != null && cible != null && !source.hasSuccesseur(y)){
             Arc a = new Arc(source, cible ) ;
+            source.succ.add(a) ;
+        
+        }
+}
+    public void addArc(int x, int weight,  int y){
+        Noeud source = this.getNoeud(x) ;
+        Noeud cible = this.getNoeud(y) ;
+        if(source.hasSuccesseur(y)){
+               System.out.println("L'arc existe deja  ");
+               return ;
+        }
+        if(source != null && cible != null && !source.hasSuccesseur(y)){
+            Arc a = new Arc(source, cible ,weight ) ;
             source.succ.add(a) ;
         
         }
@@ -218,49 +232,80 @@ private boolean hasCycle(Noeud start, Noeud parent) {
 
 
 
+// fixer aléatoirement entre  0 et 1 les abscisses et ordonnées de chaque nœud de votre graphe.
+public void positionner() {
+    for(Noeud n : this.noeuds) {
+        n.abs = (int)(Math.random() * 100);
+        n.ord = (int)(Math.random() * 100);
+    }
+}
+
+
+// Cette méthode devra connecter chaque nœud
+// de votre graphe à ses k plus proches voisins, par des arcs non orientés et valués par la
+// distance entre les paires de nœuds.
+
+public void partiel(int k){
+
+
+    
+}
+
+
+ 
+
 
 public void kruskal() {
-
     for(Noeud n : this.noeuds) n.mark = false;
-
     LinkedList<Arc> arcs = new LinkedList<>();
     for(Noeud n : this.noeuds) {
         arcs.addAll(n.succ);
         n.succ.clear(); 
     }
 
-
     arcs.sort(Comparator.comparingInt(a -> a.Weight));
     LinkedList<Arc> mst = new LinkedList<>();
     for(Arc a : arcs) {
         for(Noeud n : this.noeuds) n.mark = false;
-        a.source.succ.add(a);   // juste pour tester le cycle
+        a.source.succ.add(a); 
         if(hasCycle(a.source, null)) {
             a.source.succ.remove(a);
         } else {
             mst.add(a);
             System.out.println("Ajouter à l’arbre : " + a);
         }
-// n-1 arc
+       // n-1 arc  
         if(mst.size() == this.noeuds.size() - 1) break;
     }
+    System.out.println("Arbre couvrant de poids minimum :");
+    for(Arc a : mst) {
+        System.out.println(a);
+    }
+
+
+
+
 }
 
+// ajouter un arc valué (non orienté) entre toute paire de nœuds, la valuation de l’arc étant égale à la distance euclidienne calculée entre les deux nœuds. 
+
+public void complet() {
+    for(int i = 0; i < this.noeuds.size(); i++) {
+        for(int j = i + 1; j < this.noeuds.size(); j++) {
+            Noeud n1 = this.noeuds.get(i);
+            Noeud n2 = this.noeuds.get(j);
+
+//    distance = racine carrée de ((x2 - x1)² + (y2 - y1)²)
+            int weight = (int)Math.sqrt(Math.pow(n1.abs - n2.abs, 2) + Math.pow(n1.ord - n2.ord, 2));
+            this.addArc(n1.id, weight, n2.id);
+            this.addArc(n2.id, weight, n1.id); 
+        }
+    }
+
+  } }
 
 
 
-  }
 
 
 
-
-
-
-
-
-
-
-
-
-// le pire des cas  c'est l'element c'est le dernier 
-// la complixitty en temps  :  t ^ n  ?? 
