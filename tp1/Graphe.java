@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Stack;
 
 public class  Graphe{
@@ -11,21 +12,7 @@ public class  Graphe{
     this.noeuds = new LinkedList<Noeud>() ;
     this.hmap = new HashMap<Integer, Noeud>() ;
     }
-//     public Graphe(String file){
-//       try {
-// File monFichier = new File(file);
-// Scanner sc = new Scanner(monFichier);
-// while (sc.hasNextLine()) {
-// String data = sc.nextLine();
-// System.out.println(data);
-// }
-// sc.close();
-// }
-// catch (FileNotFoundException e) {
-// System.out.println("An error occurred.");
-// }
-    
-//     }
+
     
 public Graphe(int k){
     this.noeuds = new LinkedList<Noeud>();
@@ -37,6 +24,10 @@ public Graphe(int k){
         this.hmap.put(i, node);
     }
 }
+
+
+
+
     public void addNoeud(int n){
  
             if(hmap.containsKey(n)){
@@ -49,11 +40,8 @@ public Graphe(int k){
 
     noeuds.add(node);
     hmap.put(n, node);
-        // noeuds.add(new Noeud(n)); 
-        // hmap.put(n, new Noeud(n)) ;
        }
 
-    // }
     public Noeud getNoeud(int n){
         // with O(1) complexity   (key , value)   
         // cause get  work 
@@ -228,11 +216,14 @@ private boolean hasCycle(Noeud start, Noeud parent) {
 }
 
 
+  
 
+//    calc dis bettwen 2arcs AVEC LA FORMULE d = rcine ((x2 - x1)² + (y2 - y1)²)
+    private double distance(Noeud a, Noeud b) {
+        return Math.sqrt(Math.pow(a.abs - b.abs, 2) + Math.pow(a.ord - b.ord, 2));
+    }
 
-
-
-// fixer aléatoirement entre  0 et 1 les abscisses et ordonnées de chaque nœud de votre graphe.
+// fill the graphe with  random positions for nodes
 public void positionner() {
     for(Noeud n : this.noeuds) {
         n.abs = (int)(Math.random() * 100);
@@ -240,16 +231,29 @@ public void positionner() {
     }
 }
 
+//   add arcs between all nodes and make w = diace
+public void complet() {
+    for(int i = 0; i < this.noeuds.size(); i++) {
+        for(int j = i + 1; j < this.noeuds.size(); j++) {
+            Noeud n1 = this.noeuds.get(i);
+            Noeud n2 = this.noeuds.get(j);
+//    distance = racine carrée de ((x2 - x1)² + (y2 - y1)²)
+            int weight = (int)distance(n1, n2);
+            this.addArc(n1.id, weight, n2.id);
+            this.addArc(n2.id, weight, n1.id); 
+        }
+    }
 
+  }   
 
 public void partiel(int k) {
     for(Noeud n : this.noeuds) {
         ArrayList<Noeud> neighbors = new ArrayList<>(this.noeuds);
         neighbors.remove(n);
-        neighbors.sort(Comparator.comparingInt(neighbor -> (int)Math.sqrt(Math.pow(n.abs - neighbor.abs, 2) + Math.pow(n.ord - neighbor.ord, 2))));
+                    neighbors.sort(Comparator.comparingDouble(v -> distance(n, v)));
         for(int i = 0; i < Math.min(k, neighbors.size()); i++) {
             Noeud neighbor = neighbors.get(i);
-            int weight = (int)Math.sqrt(Math.pow(n.abs - neighbor.abs, 2) + Math.pow(n.ord - neighbor.ord, 2));
+            int weight = (int)distance(n, neighbor);
             this.addArc(n.id, weight, neighbor.id);
             this.addArc(neighbor.id, weight, n.id); 
         }
@@ -291,22 +295,63 @@ public void kruskal() {
 
 }
 
-// ajouter un arc valué (non orienté) entre toute paire de nœuds, la valuation de l’arc étant égale à la distance euclidienne calculée entre les deux nœuds. 
 
-public void complet() {
-    for(int i = 0; i < this.noeuds.size(); i++) {
-        for(int j = i + 1; j < this.noeuds.size(); j++) {
-            Noeud n1 = this.noeuds.get(i);
-            Noeud n2 = this.noeuds.get(j);
 
-//    distance = racine carrée de ((x2 - x1)² + (y2 - y1)²)
-            int weight = (int)Math.sqrt(Math.pow(n1.abs - n2.abs, 2) + Math.pow(n1.ord - n2.ord, 2));
-            this.addArc(n1.id, weight, n2.id);
-            this.addArc(n2.id, weight, n1.id); 
+
+
+
+
+
+
+// algothims imple,emtation: 
+
+
+
+
+
+
+
+
+  public List<Noeud> glouton() {
+        List<Noeud> nonVisites = new ArrayList<>(this.noeuds);
+        List<Noeud> circuit    = new ArrayList<>();
+ 
+        // 1. Choisir un nœud de départ aléatoire
+        Noeud depart = nonVisites.get(new Random().nextInt(nonVisites.size()));
+        circuit.add(depart);
+        nonVisites.remove(depart);
+ 
+        Noeud courant = depart;
+ 
+        // 2. À chaque étape, aller vers le plus proche non visité
+        while (!nonVisites.isEmpty()) {
+            Noeud plusProche = null;
+            double distMin   = Double.MAX_VALUE;
+ 
+            for (Noeud candidat : nonVisites) {
+                double d = distance(courant, candidat);
+                if (d < distMin) {
+                    distMin    = d;
+                    plusProche = candidat;
+                }
+            }
+ 
+            circuit.add(plusProche);
+            nonVisites.remove(plusProche);
+            courant = plusProche;
         }
+ 
+        // 3. Revenir au départ pour fermer le circuit
+        circuit.add(depart);
+ 
+        System.out.println("=== GLOUTON ===");
+        // afficherCircuit(circuit);
+        return circuit;
     }
 
-  } }
+
+
+}
 
 
 
