@@ -3,6 +3,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 import java.util.Stack;
 
 public class  Graphe{
@@ -194,7 +195,21 @@ public void profI(Noeud n) {
     }
 }
 
+// print Graphe
+public void PrintGraphE(List<Noeud> circuit) {
+    System.out.print("Circuit : ");
+    for (int i = 0; i < circuit.size(); i++) {
+        System.out.print(circuit.get(i).id);
+        if (i < circuit.size() - 1) System.out.print(" -> ");
+    }
+    System.out.println();
 
+    double longueur = 0;
+    for (int i = 0; i < circuit.size() - 1; i++) {
+        longueur += distance(circuit.get(i), circuit.get(i + 1));
+    }
+    System.out.printf("somme distance totale : %.2f%n", longueur);
+}
    
 
 
@@ -295,39 +310,23 @@ public void kruskal() {
 
 }
 
+  
 
 
-
-
-
-
-
-
-// algothims imple,emtation: 
-
-
-
-
-
-
-
+// algos
 
   public List<Noeud> glouton() {
         List<Noeud> nonVisites = new ArrayList<>(this.noeuds);
         List<Noeud> circuit    = new ArrayList<>();
- 
-        // 1. Choisir un nœud de départ aléatoire
-        Noeud depart = nonVisites.get(new Random().nextInt(nonVisites.size()));
+  int randomIndex = new Random().nextInt(nonVisites.size());
+        Noeud depart = nonVisites.get(randomIndex);
         circuit.add(depart);
         nonVisites.remove(depart);
- 
         Noeud courant = depart;
  
-        // 2. À chaque étape, aller vers le plus proche non visité
         while (!nonVisites.isEmpty()) {
-            Noeud plusProche = null;
+            Noeud plusProche = null;   
             double distMin   = Double.MAX_VALUE;
- 
             for (Noeud candidat : nonVisites) {
                 double d = distance(courant, candidat);
                 if (d < distMin) {
@@ -340,12 +339,9 @@ public void kruskal() {
             nonVisites.remove(plusProche);
             courant = plusProche;
         }
- 
-        // 3. Revenir au départ pour fermer le circuit
+   
         circuit.add(depart);
- 
         System.out.println("=== GLOUTON ===");
-        // afficherCircuit(circuit);
         return circuit;
     }
 
