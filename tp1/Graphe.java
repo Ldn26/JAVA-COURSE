@@ -1,9 +1,11 @@
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.Stack;
 
 public class  Graphe{
@@ -116,24 +118,6 @@ public String toString(){
 }
 
 
-
-
-
-
-// prof
-// public void parcourProf( Noeud n ){
-//   for (int i = 0    ; i <noeuds.size()   ; i++ ) {
-    
-//     // Noeud n =   ; 
-//     // // boolean mark  =  true   ;
-//     //      for(Arc a : noeuds.get(i).succ){
-//     //     if(!n.mark){
-//     //     }
-//   }
-
-  
-
-//     }
   
     public void parcours(){
      for(Noeud n : this.noeuds){
@@ -273,48 +257,7 @@ public void partiel(int k) {
             this.addArc(neighbor.id, weight, n.id); 
         }
     }  }
-
-
- 
-
-
-public void kruskal() {
-    for(Noeud n : this.noeuds) n.mark = false;
-    LinkedList<Arc> arcs = new LinkedList<>();
-    for(Noeud n : this.noeuds) {
-        arcs.addAll(n.succ);
-        n.succ.clear(); 
-    }
-
-    arcs.sort(Comparator.comparingInt(a -> a.Weight));
-    LinkedList<Arc> mst = new LinkedList<>();
-    for(Arc a : arcs) {
-        for(Noeud n : this.noeuds) n.mark = false;
-        a.source.succ.add(a); 
-        if(hasCycle(a.source, null)) {
-            a.source.succ.remove(a);
-        } else {
-            mst.add(a);
-            System.out.println("Ajouter à l’arbre : " + a);
-        }
-       // n-1 arc  
-        if(mst.size() == this.noeuds.size() - 1) break;
-    }
-    System.out.println("Arbre couvrant de poids minimum :");
-    for(Arc a : mst) {
-        System.out.println(a);
-    }
-
-
-
-
-}
-
-  
-
-
 // algos
-
   public List<Noeud> glouton() {
         List<Noeud> nonVisites = new ArrayList<>(this.noeuds);
         List<Noeud> circuit    = new ArrayList<>();
@@ -341,9 +284,211 @@ public void kruskal() {
         }
    
         circuit.add(depart);
-        System.out.println("=== GLOUTON ===");
+        System.out.println("=== glouton algorithme   ===");
         return circuit;
     }
+    /**
+     * Méthode MST complète :
+     * 1. Calcule le MST par Kruskal
+     * 2. Effectue un DFS sur le MST
+     * 3. Retourne le circuit (on revient au départ)
+     */
+public Graphe kruskal() {
+    List<Arc> arcs = new ArrayList<>();
+    for (Noeud n : this.noeuds) {
+        arcs.addAll(n.succ);
+    }  
+    // log divi  use timsrt
+        arcs.sort(Comparator.comparingInt(a -> a.Weight));
+
+        Graphe mst = new Graphe();
+    for (Noeud n : this.noeuds) {
+        mst.addNoeud(n.id);
+    }
+
+    int count = 0;
+    for (Arc a : arcs) {
+        if (count == this.noeuds.size() - 1) break;
+        for (Noeud n : mst.noeuds) n.mark = false;
+        // ajouter dans les DEUX sens
+        mst.addArc(a.source.id, a.Weight, a.cible.id);
+        mst.addArc(a.cible.id, a.Weight, a.source.id);
+        // tester cycle
+        for (Noeud n : mst.noeuds) n.mark = false;
+        if (mst.hasCycle(mst.getNoeud(a.source.id), null)) {
+            // retirer
+            Noeud s = mst.getNoeud(a.source.id);
+            Noeud c = mst.getNoeud(a.cible.id);
+            s.succ.removeIf(x -> x.cible == c);
+            c.succ.removeIf(x -> x.cible == s);
+        } else {
+            count++;
+        }
+    }
+
+    return mst;
+}
+
+    private void RunDFSinMTS(Noeud n, List<Noeud> ordre, Set<Integer> visites) {
+        visites.add(n.id);
+        ordre.add(n);
+        for (Arc a : n.succ) {
+            if (!visites.contains(a.cible.id)) {
+                // on refait le dfs sur  le voisin
+                RunDFSinMTS(a.cible, ordre, visites);
+            }
+        }
+    }
+ 
+
+  public List<Noeud> MSTAlgo() {
+    Graphe arbre = this.kruskal();
+//    path dfs
+    List<Noeud> ordre = new ArrayList<>();
+    Set<Integer> visites = new HashSet<>();
+    Noeud depart = arbre.noeuds.get(0);
+    RunDFSinMTS(depart, ordre, visites);
+//   build circuit
+    List<Noeud> circuit = new ArrayList<>();
+    for (Noeud n : ordre) {
+        circuit.add(this.getNoeud(n.id));
+    }
+    circuit.add(this.getNoeud(depart.id));
+    return circuit;
+}
+     
+
+
+
+
+
+
+
+
+
+
+
+// ÉTAPES :
+// 1. Calculer le MST (Kruskal)
+// 2. Trouver les nœuds de degré impair dans le MST
+// 3. Faire un couplage parfait minimal entre ces nœuds
+//    (version greedy : on prend les paires les plus proches)
+// 4. Ajouter les arcs du couplage au MST → multigraphe eulérien
+// 5. Trouver un circuit eulérien (Hierholzer)
+// 6. Raccourcir (shortcutting) : supprimer les doublons
+
+public List<Noeud> MM() {
+    // --- ÉTAPE 1 : MST par Kruskal ---
+    Graphe mst = this.kruskal();
+
+    // --- ÉTAPE 2 : Nœuds de degré impair ---
+    List<Noeud> impairs = new ArrayList<>();
+    for (Noeud n : mst.noeuds) {
+        if (n.succ.size() % 2 != 0) {
+            impairs.add(this.getNoeud(n.id)); // nœuds du graphe original
+        }
+    }
+
+    // --- ÉTAPE 3 : Couplage parfait minimal (greedy) ---
+    // On couple les nœuds impairs entre eux par distance minimale
+    List<int[]> couplage = new ArrayList<>();
+    List<Noeud> nonCouples = new ArrayList<>(impairs);
+
+    while (nonCouples.size() >= 2) {
+        Noeud u = nonCouples.remove(0);
+        double distMin = Double.MAX_VALUE;
+        Noeud meilleur = null;
+        for (Noeud v : nonCouples) {
+            double d = distance(u, v);
+            if (d < distMin) {
+                distMin = d;
+                meilleur = v;
+            }
+        }
+        nonCouples.remove(meilleur);
+        couplage.add(new int[]{u.id, meilleur.id, (int) distMin});
+    }
+
+    // --- ÉTAPE 4 : Multigraphe = MST + arcs couplage ---
+    // On crée un graphe combiné (listes d'adjacence avec doublons possibles)
+    // Représentation : Map<Integer, List<int[]>> où int[] = {voisin, poids}
+    HashMap<Integer, List<int[]>> multi = new HashMap<>();
+    for (Noeud n : mst.noeuds) {
+        multi.put(n.id, new ArrayList<>());
+    }
+    for (Noeud n : mst.noeuds) {
+        for (Arc a : n.succ) {
+            multi.get(n.id).add(new int[]{a.cible.id, a.Weight});
+        }
+    }
+    for (int[] pair : couplage) {
+        multi.get(pair[0]).add(new int[]{pair[1], pair[2]});
+        multi.get(pair[1]).add(new int[]{pair[0], pair[2]});
+    }
+
+    // --- ÉTAPE 5 : Circuit eulérien (Hierholzer) ---
+    List<Integer> eulerCircuit = hierholzer(multi, mst.noeuds.get(0).id);
+
+    // --- ÉTAPE 6 : Shortcutting (suppression des revisites) ---
+    List<Noeud> circuit = new ArrayList<>();
+    Set<Integer> vus = new HashSet<>();
+    for (int id : eulerCircuit) {
+        if (!vus.contains(id)) {
+            vus.add(id);
+            circuit.add(this.getNoeud(id));
+        }
+    }
+    circuit.add(this.getNoeud(circuit.get(0).id)); // retour au départ
+
+    System.out.println("=== MM (Christofides simplifié) ===");
+    return circuit;
+}
+  
+
+// Algorithme de Hierholzer pour trouver un circuit eulérien
+// Complexité : O(E) où E = nombre d'arcs
+private List<Integer> hierholzer(HashMap<Integer, List<int[]>> graph, int depart) {
+    Stack<Integer> stack = new Stack<>();
+    List<Integer> circuit = new ArrayList<>();
+    stack.push(depart);
+
+    while (!stack.isEmpty()) {
+        int v = stack.peek();
+        if (graph.get(v) != null && !graph.get(v).isEmpty()) {
+            int[] arc = graph.get(v).remove(0);
+            int voisin = arc[0];
+            // Supprimer l'arc dans l'autre sens aussi
+            List<int[]> voisinArcs = graph.get(voisin);
+            if (voisinArcs != null) {
+                voisinArcs.removeIf(a -> a[0] == v);
+            }
+            stack.push(voisin);
+        } else {
+            circuit.add(0, stack.pop());
+        }
+    }
+    return circuit;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
